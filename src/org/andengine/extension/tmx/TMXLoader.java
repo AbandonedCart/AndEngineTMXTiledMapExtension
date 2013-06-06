@@ -104,6 +104,28 @@ public class TMXLoader {
 			throw new TMXLoadException("Could not load TMXTiledMap from asset: " + pAssetPath, e);
 		}
 	}
+	
+	public TMXTiledMap loadFromFile(final String externalTilePath, final InputStream pInputStream) throws TMXLoadException {
+        try {
+                final SAXParserFactory spf = SAXParserFactory.newInstance();
+                final SAXParser sp = spf.newSAXParser();
+
+                final XMLReader xr = sp.getXMLReader();
+                final TMXParser tmxParser = new TMXParser(externalTilePath, this.mTextureManager, this.mTextureOptions, this.mVertexBufferObjectManager, this.mTMXTilePropertyListener);
+                xr.setContentHandler(tmxParser);
+
+                xr.parse(new InputSource(new BufferedInputStream(pInputStream)));
+
+                return tmxParser.getTMXTiledMap();
+        } catch (final SAXException e) {
+                throw new TMXLoadException(e);
+        } catch (final ParserConfigurationException pe) {
+                /* Doesn't happen. */
+                return null;
+        } catch (final IOException e) {
+                throw new TMXLoadException(e);
+        }
+	}
 
 	public TMXTiledMap load(final InputStream pInputStream) throws TMXLoadException {
 		try {
